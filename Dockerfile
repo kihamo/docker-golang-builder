@@ -2,7 +2,7 @@ FROM golang:1.4
 MAINTAINER Kihamo <dev@kihamo.ru>
 
 RUN apt-get update && \
-    apt-get install --no-install-recommends -y docker upx-ucl zip && \
+    apt-get install --no-install-recommends -y upx-ucl zip && \
     apt-get autoremove -y && \
     apt-get clean -y && \
     apt-get purge -y
