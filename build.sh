@@ -9,10 +9,15 @@ PACKAGE_COMPRESS=1
 PACKAGE_GO_IMPORT=`go list -e -f '{{.ImportComment}}' 2>/dev/null || true`
 MAIN_PACKAGE_PATH=$GOPATH"/src/"$PACKAGE_GO_IMPORT
 BUILD_FLAGS=""
-DOCKER_TAG_PREFIX=$1
+DOCKER_IMAGE_PREFIX=$1
+DOCKER_IMAGE_VERSION=$2
 
-if [ -n "$DOCKER_TAG_PREFIX" ]; then
-    DOCKER_TAG_PREFIX=$DOCKER_TAG_PREFIX"/"
+if [ -n "DOCKER_IMAGE_PREFIX" ]; then
+    DOCKER_IMAGE_PREFIX=DOCKER_IMAGE_PREFIX"/"
+fi
+
+if [ -z "DOCKER_IMAGE_VERSION" ]; then
+    DOCKER_IMAGE_VERSION="latest"
 fi
 
 #if [ $PACKAGE_RACE -eq 1 ]; then
@@ -64,7 +69,11 @@ do
         echo "Build package $PACKAGE SUCCESS"
 
         if [ -e "/var/run/docker.sock" ] && [ -e "./Dockerfile" ]; then
-          docker build -t ${DOCKER_TAG_PREFIX}${PACKAGE_NAME}":latest" ./
+          DOCKER_IMAGE_NAME=${DOCKER_IMAGE_PREFIX}${PACKAGE_NAME}
+
+          if [ $DOCKER_IMAGE_VERSION -ne "latest" ]; then
+            docker tag -f ${DOCKER_IMAGE_NAME}":"${DOCKER_IMAGE_VERSION} ${DOCKER_IMAGE_NAME}":latest"
+          fi
         fi
     else
         echo "Build package $PACKAGE FAILED"
