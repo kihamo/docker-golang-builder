@@ -13,7 +13,7 @@ DOCKER_IMAGE_PREFIX=$1
 DOCKER_IMAGE_VERSION=$2
 
 if [ -n "DOCKER_IMAGE_PREFIX" ]; then
-    DOCKER_IMAGE_PREFIX=DOCKER_IMAGE_PREFIX"/"
+    DOCKER_IMAGE_PREFIX=$DOCKER_IMAGE_PREFIX"/"
 fi
 
 if [ -z "DOCKER_IMAGE_VERSION" ]; then
@@ -71,7 +71,9 @@ do
         if [ -e "/var/run/docker.sock" ] && [ -e "./Dockerfile" ]; then
           DOCKER_IMAGE_NAME=${DOCKER_IMAGE_PREFIX}${PACKAGE_NAME}
 
-          if [ "$DOCKER_IMAGE_VERSION" -ne "latest" ]; then
+          docker build -t ${DOCKER_IMAGE_NAME}":"${DOCKER_IMAGE_VERSION} ./
+
+          if [ $DOCKER_IMAGE_VERSION -ne "latest" ]; then
             docker tag -f ${DOCKER_IMAGE_NAME}":"${DOCKER_IMAGE_VERSION} ${DOCKER_IMAGE_NAME}":latest"
           fi
         fi
