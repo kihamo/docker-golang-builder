@@ -73,7 +73,7 @@ do
 
           docker build -t ${DOCKER_IMAGE_NAME}":"${DOCKER_IMAGE_VERSION} ./
 
-          if [ $DOCKER_IMAGE_VERSION != "latest" ]; then
+          if [ "$DOCKER_IMAGE_VERSION" != "latest" ]; then
             docker tag -f ${DOCKER_IMAGE_NAME}":"${DOCKER_IMAGE_VERSION} ${DOCKER_IMAGE_NAME}":latest"
           fi
         fi
