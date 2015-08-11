@@ -18,7 +18,7 @@ DOCKER_IMAGE_TAG="latest"
 CL_RESET="\033[0m"
 CL_RED="\033[31m"
 CL_GREEN="\033[32m"
-CL_BLUE="\033[34m"
+CL_YELLOW="\033[33m"
 
 # Update packages
 # $1 - main package
@@ -41,7 +41,7 @@ do_go_build() {
   export GOOS=linux
   export CGO_ENABLED=0
 
-  echo ${CL_BLUE}"Build Go package $1"${CL_RESET}
+  echo ${CL_YELLOW}"Build Go package $1"${CL_RESET}
 
   cd $GOPATH"/src/"$1
   go clean
@@ -82,7 +82,7 @@ do_go_build() {
 # $2 - image version
 do_docker_build() {
   if [ -e "/var/run/docker.sock" ] && [ -e "./Dockerfile" ]; then
-    echo ${CL_BLUE}"Build Docker image $1"${CL_RESET}
+    echo ${CL_YELLOW}"Build Docker image $1"${CL_RESET}
 
     docker build -t $1":"$2 ./
 
@@ -99,7 +99,7 @@ do_docker_build() {
 # Print critical error and exit
 # $1 - is the error message
 print_error() {
-    echo "\n  ${CL_RED}Error:${CL_RESET} ${CL_BLUE}$1${CL_RESET}" >&2
+    echo "\n  ${CL_RED}Error:${CL_RESET} ${CL_YELLOW}$1${CL_RESET}" >&2
     echo "$USAGE"
     exit 255
 }
