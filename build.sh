@@ -71,7 +71,7 @@ do
         if [ -e "/var/run/docker.sock" ] && [ -e "./Dockerfile" ]; then
           DOCKER_IMAGE_NAME=${DOCKER_IMAGE_PREFIX}${PACKAGE_NAME}
 
-          if [ $DOCKER_IMAGE_VERSION -ne "latest" ]; then
+          if [ "$DOCKER_IMAGE_VERSION" -ne "latest" ]; then
             docker tag -f ${DOCKER_IMAGE_NAME}":"${DOCKER_IMAGE_VERSION} ${DOCKER_IMAGE_NAME}":latest"
           fi
         fi
