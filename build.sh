@@ -164,7 +164,7 @@ if [ -n "$DOCKER_IMAGE_PREFIX" ]; then
 fi
 
 cd $GO_SOURCE_DIR
-PACKAGE_GO_IMPORT=`go list -e 2>/dev/null || true`
+PACKAGE_GO_IMPORT=`go list -e -f '{{.ImportComment}}' 2>/dev/null || true`
 
 if [ -z "$PACKAGE_GO_IMPORT" ]; then
   print_error "GO sources not found"
