@@ -44,6 +44,13 @@ do_go_build() {
   echo ${CL_YELLOW}"Build Go package $1"${CL_RESET}
 
   cd $GOPATH"/src/"$1
+
+  PACKAGE_NAME=`go list -e -f '{{.Name}}' 2>/dev/null || true`
+  if [ "$PACKAGE_NAME" != "main" ]; then
+    echo ${CL_YELLOW}"Ignore build package $1. Not found main package"${CL_RESET}
+    return 2
+  fi
+
   go clean
 
   if [ -e "./Makefile" ]; then
@@ -165,11 +172,6 @@ fi
 
 cd $GO_SOURCE_DIR
 PACKAGE_GO_IMPORT=`go list -e -f '{{.ImportComment}}' 2>/dev/null || true`
-
-if [ -z "$PACKAGE_GO_IMPORT" ]; then
-  print_error "GO sources not found"
-fi
-
 do_go_get $PACKAGE_GO_IMPORT
 
 for GO_PACKAGE_PATH in `go list -e -f '{{.ImportComment}}' ./... 2>/dev/null || true`
@@ -177,6 +179,12 @@ do
   GO_PACKAGE_NAME=${GO_PACKAGE_PATH##*/}
   DOCKER_IMAGE_NAME=${DOCKER_IMAGE_PREFIX}${GO_PACKAGE_NAME}
 
+  set +e
   do_go_build "$GO_PACKAGE_PATH" "$GO_BUILD_FLAGS" $GO_PACKAGE_COMPRESS
-  do_docker_build $DOCKER_IMAGE_NAME $DOCKER_IMAGE_TAG
+  RESULT=$?
+  set -e
+
+  if [ $RESULT -eq 0 ]; then
+    do_docker_build $DOCKER_IMAGE_NAME $DOCKER_IMAGE_TAG
+  fi
 done
