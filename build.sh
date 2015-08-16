@@ -10,6 +10,7 @@ DEBUG=0
 GO_SOURCE_DIR="/src"
 GO_PACKAGE_COMPRESS=0
 GO_BUILD_FLAGS=""
+GO_PATH=$GOPATH
 
 DOCKER_IMAGE_PREFIX=""
 DOCKER_IMAGE_TAG="latest"
@@ -23,11 +24,12 @@ CL_YELLOW="\033[33m"
 # Update packages
 # $1 - main package
 do_go_get() {
-  mkdir -p `dirname $GOPATH"/src/"$1`
-  ln -sf $GO_SOURCE_DIR $GOPATH"/src/"$1
+  mkdir -p `dirname $GO_PATH"/src/"$1`
+  ln -sf $GO_SOURCE_DIR $GO_PATH"/src/"$1
 
   if [ -e "$1/Godeps/_workspace" ]; then
-    GOPATH=$1/Godeps/_workspace:$GOPATH
+    export GOPATH=$GO_PATH/src/$1/Godeps/_workspace:$GOPATH
+    export PATH=$GO_PATH/src/$1/Godeps/_workspace/bin:$PATH
   else
     go get -t -d -v ./...
   fi
@@ -43,7 +45,7 @@ do_go_build() {
 
   echo ${CL_YELLOW}"Build Go package $1"${CL_RESET}
 
-  cd $GOPATH"/src/"$1
+  cd $GO_PATH"/src/"$1
 
   PACKAGE_NAME=`go list -e -f '{{.Name}}' 2>/dev/null || true`
   if [ "$PACKAGE_NAME" != "main" ]; then
