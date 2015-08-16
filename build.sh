@@ -25,15 +25,27 @@ CL_YELLOW="\033[33m"
 # $1 - main package
 do_go_get() {
   PACKAGE_DIR=$GO_PATH"/src/"$1
-  
-  mkdir -p `dirname $PACKAGE_DIR`
-  ln -sf $GO_SOURCE_DIR $PACKAGE_DIR
 
-  if [ -e "$PACKAGE_DIR/Godeps/_workspace" ]; then
-    export GOPATH=$PACKAGE_DIR/Godeps/_workspace:$GOPATH
-    export PATH=$PACKAGE_DIR/Godeps/_workspace/bin:$PATH
+  mkdir -p `dirname $GO_PATH"/src/"$1`
+  ln -sf $GO_SOURCE_DIR $GO_PATH"/src/"$1
+
+  if [ -e "$GO_SOURCE_DIR/Godeps/_workspace" ]; then
+    if [ `find $GO_SOURCE_DIR/Godeps/_workspace/src -mindepth 1 -type d | wc -l` -eq 0 ]; then
+      if [ $DEBUG -eq 0 ]; then
+        godep restore -v
+      else
+        godep restore
+      fi
+    else
+      export GOPATH=$GO_SOURCE_DIR/Godeps/_workspace:$GOPATH
+      export PATH=$GO_SOURCE_DIR/Godeps/_workspace/bin:$PATH
+    fi
   else
-    go get -t -d -v ./...
+    if [ $DEBUG -eq 0 ]; then
+      go get -t -d -v ./...
+    else
+      go get -t -d ./...
+    fi
   fi
 }
 
