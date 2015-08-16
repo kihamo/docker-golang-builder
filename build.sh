@@ -34,9 +34,9 @@ do_go_get() {
       go get -t -v github.com/tools/godep
 
       if [ $DEBUG -eq 0 ]; then
-        godep restore -v
-      else
         godep restore
+      else
+        godep restore -v
       fi
     else
       export GOPATH=$GO_SOURCE_DIR/Godeps/_workspace:$GOPATH
