@@ -24,12 +24,14 @@ CL_YELLOW="\033[33m"
 # Update packages
 # $1 - main package
 do_go_get() {
-  mkdir -p `dirname $GO_PATH"/src/"$1`
-  ln -sf $GO_SOURCE_DIR $GO_PATH"/src/"$1
+  PACKAGE_DIR=$GO_PATH"/src/"$1
+  
+  mkdir -p `dirname $PACKAGE_DIR`
+  ln -sf $GO_SOURCE_DIR $PACKAGE_DIR
 
-  if [ -e "$1/Godeps/_workspace" ]; then
-    export GOPATH=$GO_PATH/src/$1/Godeps/_workspace:$GOPATH
-    export PATH=$GO_PATH/src/$1/Godeps/_workspace/bin:$PATH
+  if [ -e "$PACKAGE_DIR/Godeps/_workspace" ]; then
+    export GOPATH=$PACKAGE_DIR/Godeps/_workspace:$GOPATH
+    export PATH=$PACKAGE_DIR/Godeps/_workspace/bin:$PATH
   else
     go get -t -d -v ./...
   fi
