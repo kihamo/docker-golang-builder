@@ -31,6 +31,8 @@ do_go_get() {
 
   if [ -e "$GO_SOURCE_DIR/Godeps/_workspace" ]; then
     if [ `find $GO_SOURCE_DIR/Godeps/_workspace/src -mindepth 1 -type d | wc -l` -eq 0 ]; then
+      go get -t -v github.com/tools/godep
+
       if [ $DEBUG -eq 0 ]; then
         godep restore -v
       else
@@ -134,6 +136,7 @@ while getopts "$OPTSPEC" OPT; do
             case "$OPTARG" in
                 compress)
                     GO_PACKAGE_COMPRESS=1
+                    go get -t -v github.com/pwaller/goupx
                     ;;
                 flags)
                     GO_BUILD_FLAGS="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
