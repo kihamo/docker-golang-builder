@@ -79,7 +79,7 @@ do_go_build() {
 
   if [ $? -eq 0 ]; then
     if [ $3 -eq 1 ]; then
-      goupx ${1##*/}
+      goupx --strip-binary ${1##*/}
     fi
 
     if [ -e "./Makefile" ]; then
