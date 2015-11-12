@@ -34,9 +34,9 @@ do_go_get() {
       go get -t -v github.com/tools/godep
 
       if [ $DEBUG -eq 0 ]; then
-        godep restore -v
-      else
         godep restore
+      else
+        godep restore -v
       fi
 
     else
@@ -45,9 +45,9 @@ do_go_get() {
     fi
   else
     if [ $DEBUG -eq 0 ]; then
-      go get -t -d -v ./...
-    else
       go get -t -d ./...
+    else
+      go get -t -d -v ./...
     fi
   fi
 }
