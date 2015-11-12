@@ -32,7 +32,13 @@ do_go_get() {
   if [ -e "$GO_SOURCE_DIR/Godeps/_workspace" ]; then
     if [ `find $GO_SOURCE_DIR/Godeps/_workspace/src -mindepth 1 -type d | wc -l` -eq 0 ]; then
       go get -t -v github.com/tools/godep
-      godep restore
+
+      if [ $DEBUG -eq 0 ]; then
+        godep restore -v
+      else
+        godep restore
+      fi
+
     else
       export GOPATH=$GO_SOURCE_DIR/Godeps/_workspace:$GOPATH
       export PATH=$GO_SOURCE_DIR/Godeps/_workspace/bin:$PATH
