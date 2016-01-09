@@ -151,7 +151,7 @@ do_release() {
 
   if [ $RESULT -eq 0 ]; then
     GO_PACKAGE_NAME=${1##*/}
-    DOCKER_IMAGE_NAME=${DOCKER_IMAGE_PREFIX}${1}
+    DOCKER_IMAGE_NAME=${DOCKER_IMAGE_PREFIX}${GO_PACKAGE_NAME}
 
     do_docker_build $DOCKER_IMAGE_NAME $DOCKER_IMAGE_TAG
   fi
