@@ -263,9 +263,9 @@ if [ -n "$DOCKER_IMAGE_PREFIX" ]; then
     DOCKER_IMAGE_PREFIX=$DOCKER_IMAGE_PREFIX"/"
 fi
 
+# release main package
 cd $GO_SOURCE_DIR
 
-# release main package
 MAIN_PACKAGE_GO_IMPORT=`go list -e -f '{{.ImportComment}}' 2>/dev/null || true`
 if [ "$MAIN_PACKAGE_GO_IMPORT" = "" ]; then
   MAIN_PACKAGE_GO_IMPORT=`go list -e -f '{{.Name}}' 2>/dev/null || true`
@@ -279,6 +279,8 @@ ln -sf $GO_SOURCE_DIR $GO_PATH"/src/"$MAIN_PACKAGE_GO_IMPORT
 do_release $MAIN_PACKAGE_GO_IMPORT
 
 # release sub packages
+cd $GO_SOURCE_DIR
+
 for GO_PACKAGE_PATH in `go list -e -f '{{.Dir}}' ./... 2>/dev/null | grep -v '^'$GO_SOURCE_DIR'$' | grep -v '^'$GO_VENDOR_DIR || true`
 do
   cd $GO_PACKAGE_PATH
