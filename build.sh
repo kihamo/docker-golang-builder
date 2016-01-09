@@ -97,7 +97,11 @@ do_go_build() {
   fi
 
   if [ ! -e "./Makefile" ] || [ $? -ne 0 ]; then
-    go build -v -a -tags netgo -installsuffix netgo -ldflags "-w $2" .
+    if [ $DEBUG -eq 0 ]; then
+      go build -a -tags netgo -installsuffix netgo -ldflags "-w $2" .
+    else
+      go build -v -a -tags netgo -installsuffix netgo -ldflags "-w $2" .
+    fi
   fi
 
   if [ $? -eq 0 ]; then
@@ -204,7 +208,13 @@ while getopts "$OPTSPEC" OPT; do
             case "$OPTARG" in
                 compress)
                     GO_PACKAGE_COMPRESS=1
-                    go get -t -v github.com/pwaller/goupx
+
+                    if [ $DEBUG -eq 0 ]; then
+                      go get -t github.com/pwaller/goupx
+                    else
+                      go get -t -v github.com/pwaller/goupx
+                    fi
+
                     ;;
                 flags)
                     GO_BUILD_FLAGS="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
