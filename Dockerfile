@@ -7,9 +7,9 @@ RUN apt-get update && \
     apt-get clean -y && \
     apt-get purge -y
 
-RUN curl -sSL -O https://get.docker.com/builds/Linux/x86_64/docker-1.7.0 && \
-    chmod +x docker-1.7.0 && \
-    mv docker-1.7.0 /usr/local/bin/docker
+RUN curl -sSL -O https://get.docker.com/builds/Linux/x86_64/docker-1.9.1 && \
+    chmod +x docker-1.9.1 && \
+    mv docker-1.9.1 /usr/local/bin/docker
 
 VOLUME /src
 WORKDIR /src
