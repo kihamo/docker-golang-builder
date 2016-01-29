@@ -12,9 +12,11 @@ DEBUG=0
 
 GO_SOURCE_DIR="/src"
 GO_VENDOR_DIR=$GO_SOURCE_DIR"/vendor"
-GO_PACKAGE_COMPRESS=0
-GO_BUILD_FLAGS=""
 GO_PATH=$GOPATH
+
+GO_PACKAGE_COMPRESS=0
+GO_BUILD_STATIC=0
+GO_BUILD_FLAGS=""
 
 GLIDE_YAML="glide.yaml"
 
@@ -97,10 +99,20 @@ do_go_build() {
   fi
 
   if [ ! -e "./Makefile" ] || [ $? -ne 0 ]; then
+    LDFLAGS="-s"
+
+    if [ -n "$2" ]; then
+      LDFLAGS="$LDFLAGS -w $2"
+    fi
+
+    if [ $GO_BUILD_STATIC -eq 1 ]; then
+      LDFLAGS="-linkmode external -extldflags -static $LDFLAGS"
+    fi
+
     if [ $DEBUG -eq 0 ]; then
-      go build -a -tags netgo -installsuffix netgo -ldflags "-w $2" .
+      go build -a -installsuffix netgo -ldflags "$LDFLAGS" .
     else
-      go build -v -a -tags netgo -installsuffix netgo -ldflags "-w $2" .
+      go build -v -a -installsuffix netgo -ldflags "$LDFLAGS" .
     fi
   fi
 
@@ -251,6 +263,9 @@ while getopts "$OPTSPEC" OPT; do
                     ;;
                 cgo)
                     export CGO_ENABLED=1
+                    ;;
+                static)
+                    export GO_BUILD_STATIC=1
                     ;;
                 *)
                     if [ "$OPTERR" = 1 ] && [ "${OPTSPEC:0:1}" != ":" ]; then
