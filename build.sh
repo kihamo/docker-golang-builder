@@ -5,6 +5,9 @@ set -e
 #  set -o pipefaili
 #fi
 
+export GOOS=linux
+export CGO_ENABLED=0
+
 DEBUG=0
 
 GO_SOURCE_DIR="/src"
@@ -75,9 +78,6 @@ do_go_get() {
 # $2 [string]  build flags
 # $3 [boolean] compress binary
 do_go_build() {
-  export GOOS=linux
-  export CGO_ENABLED=0
-
   log_msg "info" "Build Go package $1"
 
   cd $GO_PATH"/src/"$1
@@ -248,6 +248,9 @@ while getopts "$OPTSPEC" OPT; do
                     ;;
                 debug)
                     DEBUG=1
+                    ;;
+                cgo)
+                    export CGO_ENABLED=1
                     ;;
                 *)
                     if [ "$OPTERR" = 1 ] && [ "${OPTSPEC:0:1}" != ":" ]; then
