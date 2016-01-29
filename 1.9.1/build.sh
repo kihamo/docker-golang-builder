@@ -110,9 +110,9 @@ do_go_build() {
     fi
 
     if [ $DEBUG -eq 0 ]; then
-      go build -a -installsuffix netgo -ldflags "$LDFLAGS" .
+      go build -a -installsuffix cgo -ldflags "$LDFLAGS" .
     else
-      go build -v -a -installsuffix netgo -ldflags "$LDFLAGS" .
+      go build -v -a -installsuffix cgo -ldflags "$LDFLAGS" .
     fi
   fi
 
@@ -263,6 +263,7 @@ while getopts "$OPTSPEC" OPT; do
                     ;;
                 cgo)
                     export CGO_ENABLED=1
+                    export GODEBUG=netdns=cgo
                     ;;
                 static)
                     export GO_BUILD_STATIC=1
