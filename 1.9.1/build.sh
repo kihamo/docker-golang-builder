@@ -110,9 +110,9 @@ do_go_build() {
     fi
 
     if [ $DEBUG -eq 0 ]; then
-      go build -a -installsuffix cgo -ldflags "$LDFLAGS" .
+      go build -a -tags netgo -installsuffix netgo -ldflags "$LDFLAGS" .
     else
-      go build -v -a -installsuffix cgo -ldflags "$LDFLAGS" .
+      go build -v -a -tags netgo -installsuffix netgo -ldflags "$LDFLAGS" .
     fi
   fi
 
