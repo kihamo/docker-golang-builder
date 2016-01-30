@@ -263,7 +263,6 @@ while getopts "$OPTSPEC" OPT; do
                     ;;
                 cgo)
                     export CGO_ENABLED=1
-                    export GODEBUG=netdns=cgo
                     ;;
                 static)
                     export GO_BUILD_STATIC=1
