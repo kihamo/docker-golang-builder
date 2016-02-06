@@ -18,7 +18,9 @@ GO_PACKAGE_COMPRESS=0
 GO_BUILD_STATIC=0
 GO_BUILD_FLAGS=""
 
+GLIDE_VERSION="0.8.3"
 GLIDE_YAML="glide.yaml"
+GLIDE_PATH=$GOPATH"/src/github.com/Masterminds/glide"
 
 DOCKER_IMAGE_PREFIX=""
 DOCKER_IMAGE_TAG="latest"
@@ -29,6 +31,21 @@ CL_RED="\033[31m"
 CL_GREEN="\033[32m"
 CL_YELLOW="\033[33m"
 
+# Install Glide
+do_install_glide() {
+    if ! [ -x "$(command -v $GLIDE_PATH/glide)" ]; then
+        rm -rf $GLIDE_PATH
+        mkdir -p $GLIDE_PATH
+        cd $GLIDE_PATH
+        git clone https://github.com/Masterminds/glide.git .
+
+        git checkout $GLIDE_VERSION
+        export GO15VENDOREXPERIMENT=1
+        make bootstrap
+        make build
+    fi
+}
+
 # Update packages
 # $1 [string] main package import path
 do_go_get() {
@@ -37,14 +54,12 @@ do_go_get() {
   if [ -e "$PACKAGE_DIR/$GLIDE_YAML" ]; then
       log_msg "debug" "Find Glide in $1"
 
-      export GO15VENDOREXPERIMENT=1
+      do_install_glide
 
       if [ $DEBUG -eq 0 ]; then
-        go get -t github.com/Masterminds/glide
-        glide -y $GLIDE_YAML up
+        $GLIDE_PATH/glide -y $GLIDE_YAML up
       else
-        go get -t -v github.com/Masterminds/glide
-        glide -y $GLIDE_YAML --debug up
+        $GLIDE_PATH/glide -y $GLIDE_YAML --debug up
       fi
   elif [ -e "$PACKAGE_DIR/Godeps/_workspace" ]; then
     log_msg "debug" "Find Godep in $1"
