@@ -43,6 +43,7 @@ do_install_glide() {
         export GO15VENDOREXPERIMENT=1
         make bootstrap
         make build
+        cd -
     fi
 }
 
