@@ -1,4 +1,4 @@
-FROM golang:1.5
+FROM golang:1.6
 MAINTAINER Kihamo <dev@kihamo.ru>
 
 RUN apt-get update && \
