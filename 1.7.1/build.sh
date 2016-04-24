@@ -9,6 +9,7 @@ export GOOS=linux
 export CGO_ENABLED=0
 
 DEBUG=0
+DEPS_LOADED=0
 
 GO_SOURCE_DIR="/src"
 GO_VENDOR_DIR=$GO_SOURCE_DIR"/vendor"
@@ -32,6 +33,11 @@ CL_YELLOW="\033[33m"
 # Update packages
 # $1 [string] main package import path
 do_go_get() {
+  if [ $DEPS_LOADED -eq 1 ]; then
+    log_msg "debug" "Dependencies already loaded."
+    return
+  fi
+
   PACKAGE_DIR=$GO_PATH"/src/"$1
 
   if [ -e "$PACKAGE_DIR/$GLIDE_YAML" ]; then
@@ -67,6 +73,8 @@ do_go_get() {
       go get -t -d -v ./...
     fi
   fi
+
+  DEPS_LOADED=1
 }
 
 # Build binary
