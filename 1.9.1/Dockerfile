@@ -20,8 +20,6 @@ RUN mkdir -p $GOPATH"/src/github.com/Masterminds/glide" && \
     git clone https://github.com/Masterminds/glide.git . && \
     git checkout 0.10.2 && \
     export GO15VENDOREXPERIMENT=1 && \
-    make clean && \
-    make bootstrap && \
     make build && \
     mv glide $GOBIN/glide
 
