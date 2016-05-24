@@ -46,9 +46,9 @@ do_go_get() {
       export GO15VENDOREXPERIMENT=1
 
       if [ $DEBUG -eq 0 ]; then
-        glide -y $GLIDE_YAML up
+        glide -y $GLIDE_YAML install
       else
-        glide -y $GLIDE_YAML --debug up
+        glide -y $GLIDE_YAML --debug install
       fi
   elif [ -e "$PACKAGE_DIR/Godeps/_workspace" ]; then
     log_msg "debug" "Find Godep in $1"
@@ -281,6 +281,16 @@ shift $((OPTIND-1))
 if [ "$DEBUG" = 1 ]; then
     set -x
 fi
+
+# install ssh private keys
+for FILE_KEY in ~/.ssh/id_rsa
+do
+    if [ -f $FILE_KEY ]; then
+        echo $FILE_KEY
+
+        echo "    IdentityFile $FILE_KEY" >> /etc/ssh/ssh_config
+    fi
+done
 
 if [ -n "$DOCKER_IMAGE_PREFIX" ]; then
     DOCKER_IMAGE_PREFIX=$DOCKER_IMAGE_PREFIX"/"
