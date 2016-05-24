@@ -35,6 +35,10 @@ RUN mkdir -p $GOPATH"/src/github.com/tools/godep" && \
 # install goupx
 RUN go get -t github.com/pwaller/goupx
 
+# ssh
+RUN sed -i.bak /etc/ssh/ssh_config -e '/StrictHostKeyChecking/d' /etc/ssh/ssh_config && \
+    echo "    StrictHostKeyChecking no" >> /etc/ssh/ssh_config
+
 VOLUME /src
 WORKDIR /src
 
