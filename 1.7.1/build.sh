@@ -286,6 +286,7 @@ fi
 for FILE_KEY in ~/.ssh/id_rsa
 do
     if [ -f $FILE_KEY ]; then
+        chmod 0600 $FILE_KEY
         echo "    IdentityFile $FILE_KEY" >> /etc/ssh/ssh_config
     fi
 done
