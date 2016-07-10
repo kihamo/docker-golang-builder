@@ -16,8 +16,8 @@ GO_VENDOR_DIR=$GO_SOURCE_DIR"/vendor"
 GO_PATH=$GOPATH
 
 GO_PACKAGE_COMPRESS=0
-GO_BUILD_STATIC=0
-GO_BUILD_FLAGS=""
+GO_BUILD_LDFLAGS="-s"
+GO_BUILD_FLASG="-a -tags netgo -installsuffix netgo"
 
 GLIDE_YAML="glide.yaml"
 
@@ -101,20 +101,10 @@ do_go_build() {
   fi
 
   if [ ! -e "./Makefile" ] || [ $? -ne 0 ]; then
-    LDFLAGS="-s"
-
-    if [ -n "$2" ]; then
-      LDFLAGS="$LDFLAGS -w $2"
-    fi
-
-    if [ $GO_BUILD_STATIC -eq 1 ]; then
-      LDFLAGS="-linkmode external -extldflags -static $LDFLAGS"
-    fi
-
     if [ $DEBUG -eq 0 ]; then
-      go build -a -tags netgo -installsuffix netgo -ldflags "$LDFLAGS" .
+      go build $GO_BUILD_FLASG -ldflags "$2" .
     else
-      go build -v -a -tags netgo -installsuffix netgo -ldflags "$LDFLAGS" .
+      go build -v $GO_BUILD_FLASG -ldflags "$2" .
     fi
   fi
 
@@ -163,7 +153,7 @@ do_release() {
   do_go_get $1
 
   set +e
-  do_go_build "$1" "$GO_BUILD_FLAGS" $GO_PACKAGE_COMPRESS
+  do_go_build "$1" "$GO_BUILD_LDFLAGS" $GO_PACKAGE_COMPRESS
   RESULT=$?
   set -e
 
@@ -224,10 +214,10 @@ while getopts "$OPTSPEC" OPT; do
                     GO_PACKAGE_COMPRESS=1
                     ;;
                 flags)
-                    GO_BUILD_FLAGS="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
+                    GO_BUILD_LDFLAGS="$GO_BUILD_LDFLAGS -w ${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
                     ;;
                 flags=*)
-                    GO_BUILD_FLAGS=${OPTARG#*=}
+                    GO_BUILD_LDFLAGS="$GO_BUILD_LDFLAGS -w "${OPTARG#*=}
                     ;;
                 source)
                     GO_SOURCE_DIR="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
@@ -260,7 +250,10 @@ while getopts "$OPTSPEC" OPT; do
                     export CGO_ENABLED=1
                     ;;
                 static)
-                    export GO_BUILD_STATIC=1
+                    GO_BUILD_LDFLAGS="-linkmode external -extldflags -static $GO_BUILD_LDFLAGS"
+                    ;;
+                race)
+                    GO_BUILD_FLASG="-race $GO_BUILD_FLASG"
                     ;;
                 *)
                     if [ "$OPTERR" = 1 ] && [ "${OPTSPEC:0:1}" != ":" ]; then
