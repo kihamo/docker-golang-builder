@@ -1,4 +1,4 @@
-FROM golang:1.6
+FROM golang:1.7
 MAINTAINER Kihamo <dev@kihamo.ru>
 
 ENV GOBIN $GOPATH/bin
@@ -18,8 +18,7 @@ RUN curl -sSL -O https://get.docker.com/builds/Linux/x86_64/docker-1.9.1 && \
 RUN mkdir -p $GOPATH"/src/github.com/Masterminds/glide" && \
     cd $GOPATH"/src/github.com/Masterminds/glide" && \
     git clone https://github.com/Masterminds/glide.git . && \
-    git checkout 0.10.2 && \
-    export GO15VENDOREXPERIMENT=1 && \
+    git checkout v0.11.1 && \
     make build && \
     mv glide $GOBIN/glide
 
@@ -27,7 +26,7 @@ RUN mkdir -p $GOPATH"/src/github.com/Masterminds/glide" && \
 RUN mkdir -p $GOPATH"/src/github.com/tools/godep" && \
     cd $GOPATH"/src/github.com/tools/godep" && \
     git clone https://github.com/tools/godep.git . && \
-    git checkout v57 && \
+    git checkout v74 && \
     go install
 
 # install goupx

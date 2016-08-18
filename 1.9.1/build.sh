@@ -43,8 +43,6 @@ do_go_get() {
   if [ -e "$PACKAGE_DIR/$GLIDE_YAML" ]; then
       log_msg "debug" "Find Glide in $1"
 
-      export GO15VENDOREXPERIMENT=1
-
       if [ $DEBUG -eq 0 ]; then
         glide -y $GLIDE_YAML install
       else
