@@ -1,4 +1,4 @@
-FROM golang:1.7.1
+FROM golang:1.7.3
 MAINTAINER Kihamo <dev@kihamo.ru>
 
 ENV GOBIN $GOPATH/bin
@@ -10,9 +10,8 @@ RUN apt-get update && \
     apt-get purge -y
 
 # install Docker
-RUN curl -sSL -O https://get.docker.com/builds/Linux/x86_64/docker-1.9.1 && \
-    chmod +x docker-1.9.1 && \
-    mv docker-1.9.1 /usr/local/bin/docker
+RUN curl -fsSLO https://get.docker.com/builds/Linux/x86_64/docker-1.12.3.tgz && \
+    tar --strip-components=1 -xvzf docker-1.12.3.tgz -C /usr/local/bin
 
 # install Glide
 RUN mkdir -p $GOPATH"/src/github.com/Masterminds/glide" && \
