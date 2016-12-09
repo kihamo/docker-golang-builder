@@ -1,4 +1,4 @@
-FROM golang:1.7.3
+FROM golang:1.7.4
 MAINTAINER Kihamo <dev@kihamo.ru>
 
 ENV GOBIN $GOPATH/bin
