@@ -17,7 +17,7 @@ RUN curl -fsSLO https://get.docker.com/builds/Linux/x86_64/docker-1.12.3.tgz && 
 RUN mkdir -p $GOPATH"/src/github.com/Masterminds/glide" && \
     cd $GOPATH"/src/github.com/Masterminds/glide" && \
     git clone https://github.com/Masterminds/glide.git . && \
-    git checkout v0.12.2 && \
+    git checkout v0.12.3 && \
     make build && \
     mv glide $GOBIN/glide
 
@@ -25,7 +25,7 @@ RUN mkdir -p $GOPATH"/src/github.com/Masterminds/glide" && \
 RUN mkdir -p $GOPATH"/src/github.com/tools/godep" && \
     cd $GOPATH"/src/github.com/tools/godep" && \
     git clone https://github.com/tools/godep.git . && \
-    git checkout v74 && \
+    git checkout v75 && \
     go install
 
 # install goupx
