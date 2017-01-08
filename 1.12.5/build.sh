@@ -12,7 +12,6 @@ DEBUG=0
 DEPS_LOADED=0
 
 GO_SOURCE_DIR="/src"
-GO_VENDOR_DIR=$GO_SOURCE_DIR"/vendor"
 GO_PATH=$GOPATH
 
 GO_PACKAGE_COMPRESS=0
@@ -302,6 +301,7 @@ ln -sf $GO_SOURCE_DIR $GO_PATH"/src/"$MAIN_PACKAGE_GO_IMPORT
 do_release $MAIN_PACKAGE_GO_IMPORT
 
 # release sub packages
+GO_VENDOR_DIR=$GO_SOURCE_DIR"/vendor"
 cd $GO_SOURCE_DIR
 
 for GO_PACKAGE_PATH in `go list -e -f '{{.Dir}}' ./... 2>/dev/null | grep -v '^'$GO_SOURCE_DIR'$' | grep -v '^'$GO_VENDOR_DIR || true`
