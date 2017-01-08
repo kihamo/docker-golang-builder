@@ -8,11 +8,15 @@ set -e
 export GOOS=linux
 export CGO_ENABLED=0
 
+RETURN_CODE_SUCCESS=0
+RETURN_CODE_MAIN_NOT_FOUND=101
+RETURN_CODE_BUILD_FAILED=102
+
 DEBUG=0
 DEPS_LOADED=0
 
 GO_SOURCE_DIR="/src"
-GO_PATH=$GOPATH
+GO_SOURCE_PATH=$GOPATH"/src/"
 
 GO_PACKAGE_COMPRESS=0
 GO_BUILD_LDFLAGS="-s"
@@ -31,15 +35,16 @@ CL_YELLOW="\033[33m"
 
 # Update packages
 # $1 [string] main package import path
+# $2 [string] go path
 do_go_get() {
   if [ $DEPS_LOADED -eq 1 ]; then
     log_msg "debug" "Dependencies already loaded."
-    return
+    return $RETURN_CODE_SUCCESS
   fi
 
-  PACKAGE_DIR=$GO_PATH"/src/"$1
+  cd ${2}${1}
 
-  if [ -e "$PACKAGE_DIR/$GLIDE_YAML" ]; then
+  if [ -e "$GLIDE_YAML" ]; then
       log_msg "debug" "Find Glide in $1"
 
       if [ $DEBUG -eq 0 ]; then
@@ -47,10 +52,10 @@ do_go_get() {
       else
         glide -y $GLIDE_YAML --debug install
       fi
-  elif [ -e "$PACKAGE_DIR/Godeps/_workspace" ]; then
+  elif [ -e "Godeps/_workspace" ]; then
     log_msg "debug" "Find Godep in $1"
 
-    if [ `find $PACKAGE_DIR/Godeps/_workspace/src -mindepth 1 -type d | wc -l` -eq 0 ]; then
+    if [ `find Godeps/_workspace/src -mindepth 1 -type d | wc -l` -eq 0 ]; then
       if [ $DEBUG -eq 0 ]; then
         godep restore
       else
@@ -58,8 +63,8 @@ do_go_get() {
       fi
 
     else
-      export GOPATH=$PACKAGE_DIR/Godeps/_workspace:$GOPATH
-      export PATH=$PACKAGE_DIR/Godeps/_workspace/bin:$PATH
+      export GOPATH=$2/src/$1/Godeps/_workspace:$GOPATH
+      export PATH=$2/src/$1/Godeps/_workspace/bin:$PATH
     fi
   else
     log_msg "debug" "Package manager not found"
@@ -72,20 +77,22 @@ do_go_get() {
   fi
 
   DEPS_LOADED=1
+  return $RETURN_CODE_SUCCESS
 }
 
 # Build binary
-# $1 [string]  package name
-# $2 [string]  build flags
-# $3 [boolean] compress binary
+# $1 [string]  package import path
+# $2 [string]  go path
+# $3 [string]  build flags
+# $4 [boolean] compress binary
 do_go_build() {
   log_msg "info" "Build Go package $1"
 
-  cd $GO_PATH"/src/"$1
+  cd ${2}${1}
 
   if [ `go list -e -f '{{.Name}}' 2>/dev/null || true` != "main" ]; then
-    log_msg "warn" "Ignore build package $1. Not found main package"
-    return 2
+    log_msg "fatal" "Ignore build package $1. Not found main package"
+    return $RETURN_CODE_MAIN_NOT_FOUND
   fi
 
   go clean
@@ -99,14 +106,14 @@ do_go_build() {
 
   if [ ! -e "./Makefile" ] || [ $? -ne 0 ]; then
     if [ $DEBUG -eq 0 ]; then
-      go build $GO_BUILD_FLASG -ldflags "$2" .
+      go build $GO_BUILD_FLASG -ldflags "$3" .
     else
-      go build -v $GO_BUILD_FLASG -ldflags "$2" .
+      go build -v $GO_BUILD_FLASG -ldflags "$3" .
     fi
   fi
 
   if [ $? -eq 0 ]; then
-    if [ $3 -eq 1 ]; then
+    if [ $4 -eq 1 ]; then
       goupx --strip-binary ${1##*/}
     fi
 
@@ -115,51 +122,84 @@ do_go_build() {
       make build-post
       set -e
     fi
-
-    log_msg "info" "Build Go package $1 SUCCESS"
   else
     log_msg "fatal" "Build package $1 FAILED"
-    return 1
+    return $RETURN_CODE_BUILD_FAILED
   fi
 
-  return 0
+  log_msg "info" "Build Go package $1 SUCCESS"
+  return $RETURN_CODE_SUCCESS
 }
 
 # Build docker image
-# $1 [string] image name
-# $2 [string] image version
+# $1 [string] package import path
+# $2 [string] go path
+# $3 [string] image name
+# $4 [string] image version
 do_docker_build() {
-  if [ -e "/var/run/docker.sock" ] && [ -e "./Dockerfile" ]; then
-    log_msg "info" "Build Docker image $1"
-
-    docker build -t $1":"$2 ./
-
-    if [ "$2" != "latest" ]; then
-      docker tag $1":"$2 $1":latest"
-    fi
-
-    log_msg "info" "Build Docker image $1 SUCCESS"
+  if ! [ -S "/var/run/docker.sock" ]; then
+    log_msg "warn" "Docker socket not found in package $1"
+    return $RETURN_CODE_SUCCESS
   fi
 
-  return 0
+  cd ${2}${1}
+
+  if ! [ -s "./Dockerfile" ]; then
+    log_msg "warn" "Dockerfile socket not found in package $1"
+    return $RETURN_CODE_SUCCESS
+  fi
+
+  log_msg "info" "Build Docker image $3 for package $1"
+
+  docker build -t $3":"$4 ./
+
+  log_msg "info" "Build Docker image $3 for package $1 SUCCESS"
+  return $RETURN_CODE_SUCCESS
 }
 
 # Release package
 # $1 [string] package import path
+# $2 [string] go path
+# $3 [string] docker image name
+# $4 [string] docker image tag
 do_release() {
-  do_go_get $1
+  cd ${2}${1}
+
+  # package main not found
+  if [ `go list -e -f '{{.Name}}' 2>/dev/null || true` != "main" ]; then
+    log_msg "info" "Ignore build package $1. Not found main package"
+    return $RETURN_CODE_SUCCESS
+  fi
 
   set +e
-  do_go_build "$1" "$GO_BUILD_LDFLAGS" $GO_PACKAGE_COMPRESS
-  RESULT=$?
+  do_go_get "$1" "$2"
+  RETURN_CODE=$?
+  set -e
+  if [ $RETURN_CODE -ne 0 ]; then
+    log_msg "fatal" "Execute do_go_get for package $1 FAILED"
+    return $RETURN_CODE
+  fi
+
+  set +e
+  do_go_build "$1" "$2" "$GO_BUILD_LDFLAGS" $GO_PACKAGE_COMPRESS
+  STATUS_CODE=$?
+  set -e
+  if [ $RETURN_CODE -ne 0 ]; then
+    log_msg "fatal" "Execute do_go_build for package $1 FAILED"
+    return $RETURN_CODE
+  fi
+
+  set +e
+  do_docker_build "$1" "$2" $3 $4
+  RETURN_CODE=$?
   set -e
 
-  if [ $RESULT -eq 0 ]; then
-    GO_PACKAGE_NAME=${1##*/}
-    DOCKER_IMAGE_NAME=${DOCKER_IMAGE_PREFIX}${GO_PACKAGE_NAME}
-
-    do_docker_build $DOCKER_IMAGE_NAME $DOCKER_IMAGE_TAG
+  if [ $RETURN_CODE -ne 0 ]; then
+    log_msg "fatal" "Execute do_docker_build for package $1 FAILED"
+    return $RETURN_CODE
   fi
+
+  return $RETURN_CODE_SUCCESS
 }
 
 # Log
@@ -171,19 +211,16 @@ log_msg() {
          shift
          echo "${CL_RED}[PANIC]${CL_RESET} $@" >&2
          echo "$USAGE"
-         exit 255
          ;;
       "fatal")
          shift
          echo "${CL_RED}[FATAL]${CL_RESET} $@" >&2
          echo "$USAGE"
-         exit 255
          ;;
       "error")
          shift
          echo "${CL_RED}[ERROR]${CL_RESET} $@" >&2
          echo "$USAGE"
-         exit 255
          ;;
       "warn")
          shift
@@ -294,22 +331,36 @@ if [ "$MAIN_PACKAGE_GO_IMPORT" = "" ]; then
 fi
 
 # move source code to $GOPATH
-rm -rf $GO_PATH"/src/"$MAIN_PACKAGE_GO_IMPORT
-mkdir -p `dirname $GO_PATH"/src/"$MAIN_PACKAGE_GO_IMPORT`
-ln -sf $GO_SOURCE_DIR $GO_PATH"/src/"$MAIN_PACKAGE_GO_IMPORT
+GO_SOURCE_TARGET=${GO_SOURCE_PATH}${MAIN_PACKAGE_GO_IMPORT}
+rm -rf $GO_SOURCE_TARGET
+mkdir -p `dirname $GO_SOURCE_TARGET`
+ln -sf $GO_SOURCE_DIR $GO_SOURCE_TARGET
 
-do_release $MAIN_PACKAGE_GO_IMPORT
+do_go_get $MAIN_PACKAGE_GO_IMPORT "$GO_SOURCE_PATH"
+
+set +e
+do_release $MAIN_PACKAGE_GO_IMPORT "$GO_SOURCE_PATH"
+RETURN_CODE=$?
+set -e
+
+if [ $RETURN_CODE -ne 0 ]; then
+  exit $RETURN_CODE
+fi
 
 # release sub packages
-cd $GO_PATH"/src/"$MAIN_PACKAGE_GO_IMPORT
+cd $GO_SOURCE_TARGET
 
 for GO_PACKAGE_PATH in `go list -e -f '{{.Dir}}' ./... 2>/dev/null | grep -v '^'$GO_SOURCE_DIR'$' | grep -v '^'$(pwd)"/vendor" || true`
 do
-  cd $GO_PACKAGE_PATH
-  if [ `go list -e -f '{{.Name}}' 2>/dev/null || true` != "main" ]; then
-    continue
-  fi
-  cd -
+  GO_PACKAGE=$MAIN_PACKAGE_GO_IMPORT${GO_PACKAGE_PATH##*$GO_SOURCE_TARGET}
+  DOCKER_IMAGE_NAME=${DOCKER_IMAGE_PREFIX}${GO_PACKAGE##*/}
 
-  do_release "$MAIN_PACKAGE_GO_IMPORT${GO_PACKAGE_PATH##*$GO_SOURCE_DIR}"
+  set +e
+  do_release $GO_PACKAGE "$GO_SOURCE_PATH" $DOCKER_IMAGE_NAME $DOCKER_IMAGE_TAG
+  RETURN_CODE=$?
+  set -e
+
+  if [ $RETURN_CODE -ne 0 ]; then
+    exit $RETURN_CODE
+  fi
 done
