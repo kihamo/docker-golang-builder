@@ -136,7 +136,7 @@ do_docker_build() {
     docker build -t $1":"$2 ./
 
     if [ "$2" != "latest" ]; then
-      docker tag -f $1":"$2 $1":latest"
+      docker tag $1":"$2 $1":latest"
     fi
 
     log_msg "info" "Build Docker image $1 SUCCESS"
