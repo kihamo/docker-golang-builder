@@ -39,6 +39,7 @@ RUN sed -i.bak /etc/ssh/ssh_config -e '/StrictHostKeyChecking/d' /etc/ssh/ssh_co
 VOLUME /src
 WORKDIR /src
 
-COPY build.sh /build.sh
+COPY build.sh /usr/local/bin/go-build
+RUN chmod +x /usr/local/bin/go-build
 
-ENTRYPOINT ["/build.sh"]
+ENTRYPOINT ["go-build"]

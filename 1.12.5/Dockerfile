@@ -10,8 +10,8 @@ RUN apt-get update && \
     apt-get purge -y
 
 # install Docker
-RUN curl -fsSLO https://get.docker.com/builds/Linux/x86_64/docker-1.12.3.tgz && \
-    tar --strip-components=1 -xvzf docker-1.12.3.tgz -C /usr/local/bin
+RUN curl -fsSLO https://get.docker.com/builds/Linux/x86_64/docker-1.12.5.tgz && \
+    tar --strip-components=1 -xvzf docker-1.12.5.tgz -C /usr/local/bin
 
 # install Glide
 RUN mkdir -p $GOPATH"/src/github.com/Masterminds/glide" && \
@@ -38,6 +38,7 @@ RUN sed -i.bak /etc/ssh/ssh_config -e '/StrictHostKeyChecking/d' /etc/ssh/ssh_co
 VOLUME /src
 WORKDIR /src
 
-COPY build.sh /build.sh
+COPY build.sh /usr/local/bin/go-build
+RUN chmod +x /usr/local/bin/go-build
 
-ENTRYPOINT ["/build.sh"]
+ENTRYPOINT ["go-build"]
