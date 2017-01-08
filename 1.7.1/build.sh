@@ -301,10 +301,9 @@ ln -sf $GO_SOURCE_DIR $GO_PATH"/src/"$MAIN_PACKAGE_GO_IMPORT
 do_release $MAIN_PACKAGE_GO_IMPORT
 
 # release sub packages
-GO_VENDOR_DIR=$GO_SOURCE_DIR"/vendor"
-cd $GO_SOURCE_DIR
+cd $GO_PATH"/src/"$MAIN_PACKAGE_GO_IMPORT
 
-for GO_PACKAGE_PATH in `go list -e -f '{{.Dir}}' ./... 2>/dev/null | grep -v '^'$GO_SOURCE_DIR'$' | grep -v '^'$GO_VENDOR_DIR || true`
+for GO_PACKAGE_PATH in `go list -e -f '{{.Dir}}' ./... 2>/dev/null | grep -v '^'$GO_SOURCE_DIR'$' | grep -v '^'$(pwd)"/vendor" || true`
 do
   cd $GO_PACKAGE_PATH
   if [ `go list -e -f '{{.Name}}' 2>/dev/null || true` != "main" ]; then
