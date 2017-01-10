@@ -151,7 +151,11 @@ do_docker_build() {
 
   log_msg "info" "Build Docker image $3 for package $1"
 
-  docker build -t $3":"$4 ./
+  if [ $DEBUG -eq 0 ]; then
+    docker build -q -t $3":"$4 ./
+  else
+    docker build -t $3":"$4 ./
+  fi
 
   log_msg "info" "Build Docker image $3 for package $1 SUCCESS"
   return $RETURN_CODE_SUCCESS
