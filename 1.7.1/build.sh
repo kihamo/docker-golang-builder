@@ -322,6 +322,11 @@ do
     fi
 done
 
+if [ -s "./mirrors.yaml" ] && [ -n "$GLIDE_HOME" ]; then
+  log_msg "debug" "Copy mirrors.yaml to $GLIDE_HOME"
+  cp ./mirrors.yaml $GLIDE_HOME/
+fi
+
 if [ -n "$DOCKER_IMAGE_PREFIX" ]; then
     DOCKER_IMAGE_PREFIX=$DOCKER_IMAGE_PREFIX"/"
 fi
