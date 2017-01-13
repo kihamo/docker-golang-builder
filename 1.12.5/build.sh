@@ -48,9 +48,9 @@ do_go_get() {
       log_msg "debug" "Find Glide in $1"
 
       if [ $DEBUG -eq 0 ]; then
-        glide -y $GLIDE_YAML --home ./ install
+        glide -y $GLIDE_YAML install
       else
-        glide -y $GLIDE_YAML --home ./ --debug install
+        glide -y $GLIDE_YAML --debug install
       fi
   elif [ -e "Godeps/_workspace" ]; then
     log_msg "debug" "Find Godep in $1"
