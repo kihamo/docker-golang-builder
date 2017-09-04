@@ -1,4 +1,4 @@
-FROM golang:1.8.3
+FROM golang:1.9.0
 MAINTAINER Kihamo <dev@kihamo.ru>
 
 ENV GOBIN $GOPATH/bin
@@ -25,7 +25,7 @@ RUN mkdir -p $GOPATH"/src/github.com/Masterminds/glide" && \
 RUN mkdir -p $GOPATH"/src/github.com/tools/godep" && \
     cd $GOPATH"/src/github.com/tools/godep" && \
     git clone https://github.com/tools/godep.git . && \
-    git checkout v75 && \
+    git checkout v79 && \
     go install
 
 # install goupx
