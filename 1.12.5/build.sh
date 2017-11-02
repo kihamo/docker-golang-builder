@@ -22,7 +22,8 @@ GO_PACKAGE_COMPRESS=0
 GO_BUILD_LDFLAGS="-s"
 GO_BUILD_FLASG="-a -tags netgo -installsuffix netgo"
 
-GLIDE_YAML="glide.yaml"
+GLIDE_FILE="glide.yaml"
+DEP_FILE="Gopkg.toml"
 
 DOCKER_IMAGE_PREFIX=""
 DOCKER_IMAGE_TAG="latest"
@@ -44,13 +45,21 @@ do_go_get() {
 
   cd ${2}${1}
 
-  if [ -e "$GLIDE_YAML" ]; then
+  if [ -e "$DEP_FILE" ]; then
+      log_msg "debug" "Find Golang dep in $1"
+
+      if [ $DEBUG -eq 0 ]; then
+        dep ensure
+      else
+        dep ensure -v
+      fi
+  elif [ -e "$GLIDE_FILE" ]; then
       log_msg "debug" "Find Glide in $1"
 
       if [ $DEBUG -eq 0 ]; then
-        glide -y $GLIDE_YAML install
+        glide -y $GLIDE_FILE install
       else
-        glide -y $GLIDE_YAML --debug install
+        glide -y $GLIDE_FILE --debug install
       fi
   elif [ -e "Godeps/_workspace" ]; then
     log_msg "debug" "Find Godep in $1"
@@ -276,10 +285,10 @@ while getopts "$OPTSPEC" OPT; do
                     DOCKER_IMAGE_TAG=${OPTARG#*=}
                     ;;
                 glide)
-                    GLIDE_YAML="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
+                    GLIDE_FILE="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 ))
                     ;;
                 glide=*)
-                    GLIDE_YAML=${OPTARG#*=}
+                    GLIDE_FILE=${OPTARG#*=}
                     ;;
                 debug)
                     DEBUG=1
