@@ -10,8 +10,8 @@ RUN apt-get update && \
     apt-get purge -y
 
 # install Docker
-RUN curl -fsSLO https://get.docker.com/builds/Linux/x86_64/docker-17.03.1-ce.tgz && \
-    tar --strip-components=1 -xvzf docker-17.03.1-ce.tgz -C /usr/local/bin
+RUN curl -fsSLO https://download.docker.com/linux/static/stable/x86_64/docker-17.09.0-ce.tgz && \
+    tar --strip-components=1 -xvzf docker-17.09.0-ce.tgz -C /usr/local/bin
 
 # install Glide
 RUN mkdir -p $GOPATH"/src/github.com/Masterminds/glide" && \
