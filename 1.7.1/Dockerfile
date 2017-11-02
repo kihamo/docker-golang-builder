@@ -18,7 +18,7 @@ RUN curl -sSL -O https://get.docker.com/builds/Linux/x86_64/docker-1.7.1 && \
 RUN mkdir -p $GOPATH"/src/github.com/Masterminds/glide" && \
     cd $GOPATH"/src/github.com/Masterminds/glide" && \
     git clone https://github.com/Masterminds/glide.git . && \
-    git checkout v0.12.3 && \
+    git checkout v0.13.0 && \
     make build && \
     mv glide $GOBIN/glide
 
