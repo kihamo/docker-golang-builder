@@ -13,6 +13,11 @@ RUN apt-get update && \
 RUN curl -fsSLO https://download.docker.com/linux/static/stable/x86_64/docker-17.09.0-ce.tgz && \
     tar --strip-components=1 -xvzf docker-17.09.0-ce.tgz -C /usr/local/bin
 
+# Golang dep
+RUN curl -fsSL https://github.com/golang/dep/releases/download/v0.3.2/dep-linux-amd64 -o ./dep && \
+    chmod +x ./dep && \
+    mv ./dep /usr/local/bin/
+
 # install Glide
 RUN mkdir -p $GOPATH"/src/github.com/Masterminds/glide" && \
     cd $GOPATH"/src/github.com/Masterminds/glide" && \

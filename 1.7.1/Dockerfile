@@ -14,6 +14,11 @@ RUN curl -sSL -O https://get.docker.com/builds/Linux/x86_64/docker-1.7.1 && \
     chmod +x docker-1.7.1 && \
     mv docker-1.7.1 /usr/local/bin/docker
 
+# Golang dep
+RUN curl -fsSL https://github.com/golang/dep/releases/download/v0.3.2/dep-linux-amd64 -o ./dep && \
+    chmod +x ./dep && \
+    mv ./dep /usr/local/bin/
+
 # install Glide
 RUN mkdir -p $GOPATH"/src/github.com/Masterminds/glide" && \
     cd $GOPATH"/src/github.com/Masterminds/glide" && \
