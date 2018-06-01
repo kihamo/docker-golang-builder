@@ -15,7 +15,7 @@ RUN curl -sSL -O https://get.docker.com/builds/Linux/x86_64/docker-1.7.1 && \
     mv docker-1.7.1 /usr/local/bin/docker
 
 # Golang dep
-RUN curl -fsSL https://github.com/golang/dep/releases/download/v0.3.2/dep-linux-amd64 -o ./dep && \
+RUN curl -fsSL https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-amd64 -o ./dep && \
     chmod +x ./dep && \
     mv ./dep /usr/local/bin/
 
@@ -23,7 +23,7 @@ RUN curl -fsSL https://github.com/golang/dep/releases/download/v0.3.2/dep-linux-
 RUN mkdir -p $GOPATH"/src/github.com/Masterminds/glide" && \
     cd $GOPATH"/src/github.com/Masterminds/glide" && \
     git clone https://github.com/Masterminds/glide.git . && \
-    git checkout v0.13.0 && \
+    git checkout v0.13.1 && \
     make build && \
     mv glide $GOBIN/glide
 
@@ -31,7 +31,7 @@ RUN mkdir -p $GOPATH"/src/github.com/Masterminds/glide" && \
 RUN mkdir -p $GOPATH"/src/github.com/tools/godep" && \
     cd $GOPATH"/src/github.com/tools/godep" && \
     git clone https://github.com/tools/godep.git . && \
-    git checkout v79 && \
+    git checkout v80 && \
     go install
 
 # install goupx
