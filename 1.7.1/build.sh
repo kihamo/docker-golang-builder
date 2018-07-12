@@ -24,6 +24,7 @@ GO_BUILD_FLASG="-a -tags netgo -installsuffix netgo"
 
 GLIDE_FILE="glide.yaml"
 DEP_FILE="Gopkg.toml"
+VGO_FILE="go.mod"
 
 DOCKER_IMAGE_PREFIX=""
 DOCKER_IMAGE_TAG="latest"
@@ -45,7 +46,15 @@ do_go_get() {
 
   cd ${2}${1}
 
-  if [ -e "$DEP_FILE" ]; then
+  if [ -e "$VGO_FILE" ]; then
+      log_msg "debug" "Find Golang VGO in $1"
+
+      if [ $DEBUG -eq 0 ]; then
+        vgo mod -vendor
+      else
+        vgo mod -vendor -v
+      fi
+  elif [ -e "$DEP_FILE" ]; then
       log_msg "debug" "Find Golang dep in $1"
 
       if [ $DEBUG -eq 0 ]; then

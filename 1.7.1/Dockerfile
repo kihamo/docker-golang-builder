@@ -1,4 +1,4 @@
-FROM golang:1.10.2
+FROM golang:1.10.3
 MAINTAINER Kihamo <dev@kihamo.ru>
 
 ENV GOBIN $GOPATH/bin
@@ -34,8 +34,11 @@ RUN mkdir -p $GOPATH"/src/github.com/tools/godep" && \
     git checkout v80 && \
     go install
 
+# install vgo
+RUN go get -t -u golang.org/x/vgo
+
 # install goupx
-RUN go get -t github.com/pwaller/goupx
+RUN go get -t -u github.com/pwaller/goupx
 
 # ssh
 RUN sed -i.bak /etc/ssh/ssh_config -e '/StrictHostKeyChecking/d' /etc/ssh/ssh_config && \
