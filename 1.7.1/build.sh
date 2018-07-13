@@ -342,7 +342,7 @@ done
 
 # install .netrc
 if [ -s ".netrc" ] ; then
-    cp .netrc ~/
+    cp -rf .netrc ~/
     chmod 600 ~/.netrc
 fi
 
