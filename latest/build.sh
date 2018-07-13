@@ -340,6 +340,12 @@ do
     fi
 done
 
+# install .netrc
+if [ -s ".netrc" ] ; then
+    cp .netrc ~/
+    chmod 600 ~/.netrc
+fi
+
 if [ -s "./mirrors.yaml" ] && [ -n "$GLIDE_HOME" ]; then
   log_msg "debug" "Copy mirrors.yaml to $GLIDE_HOME"
   cp ./mirrors.yaml $GLIDE_HOME/
