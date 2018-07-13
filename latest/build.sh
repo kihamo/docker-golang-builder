@@ -25,6 +25,7 @@ GO_BUILD_FLASG="-a -tags netgo -installsuffix netgo"
 GLIDE_FILE="glide.yaml"
 DEP_FILE="Gopkg.toml"
 VGO_FILE="go.mod"
+NETRC_FILE=".netrc"
 
 DOCKER_IMAGE_PREFIX=""
 DOCKER_IMAGE_TAG="latest"
@@ -45,6 +46,12 @@ do_go_get() {
   fi
 
   cd ${2}${1}
+
+  # install .netrc
+  if [ -s "$NETRC_FILE" ] ; then
+      cp -rf $NETRC_FILE ~/
+      chmod 600 ~/$NETRC_FILE
+  fi
 
   if [ -e "$VGO_FILE" ]; then
       log_msg "debug" "Find Golang VGO in $1"
@@ -339,12 +346,6 @@ do
         echo "    IdentityFile $FILE_KEY" >> /etc/ssh/ssh_config
     fi
 done
-
-# install .netrc
-if [ -s ".netrc" ] ; then
-    cp -rf .netrc ~/
-    chmod 600 ~/.netrc
-fi
 
 if [ -s "./mirrors.yaml" ] && [ -n "$GLIDE_HOME" ]; then
   log_msg "debug" "Copy mirrors.yaml to $GLIDE_HOME"
