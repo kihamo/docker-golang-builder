@@ -1,4 +1,4 @@
-FROM golang:1.10.3
+FROM golang:1.11.4
 MAINTAINER Kihamo <dev@kihamo.ru>
 
 ENV GOBIN $GOPATH/bin
@@ -22,7 +22,7 @@ RUN curl -fsSL https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-
 RUN mkdir -p $GOPATH"/src/github.com/Masterminds/glide" && \
     cd $GOPATH"/src/github.com/Masterminds/glide" && \
     git clone https://github.com/Masterminds/glide.git . && \
-    git checkout v0.13.1 && \
+    git checkout v0.13.2 && \
     make build && \
     mv glide $GOBIN/glide
 
